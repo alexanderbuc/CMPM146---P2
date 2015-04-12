@@ -1,6 +1,7 @@
 __author__ = 'abuc_000'
 import random
 def think(state, quip):
+    me = state.get_whos_turn()
     stateCopy = state.copy()
     for each in stateCopy.get_moves():
         stateCopy.apply_move(each)

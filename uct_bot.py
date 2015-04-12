@@ -1,4 +1,7 @@
 import math, random, time
+
+THINK_DUR = 1
+
 class Node:
     """ A node in the game tree. Note wins is always from the viewpoint of playerJustMoved.
         Crashes if state not specified.
@@ -58,24 +61,30 @@ class Node:
 
 
 def think(state, quip):
-    rootnode = Node(state = state.copy)
+    rootnode = Node(state = state.copy())
     me = state.get_whos_turn()
+
     def outcome(score):
         if me == 'red':
             return score['red'] - score['blue']
         else:
             return score['blue'] - score['red']
 
+    timeStart = time.time()
+    timeDead = timeStart + THINK_DUR
+    iterations = 0
+    while True:
+        iterations += 1
 
-    for i in range(100):
         node = rootnode
         stateCopy = state.copy()
 
         while node.untriedMoves == [] and node.childNodes != []:
+            #print "select"
             node = node.UCTSelectChild()
             stateCopy.apply_move(node.move)
 
-        if node.untriedMoves == [] and node.childNodes != []:
+        if node.untriedMoves != []:
             m = random.choice(node.untriedMoves)
             stateCopy.apply_move(m)
             node = node.AddChild(m, stateCopy)
@@ -84,6 +93,17 @@ def think(state, quip):
             stateCopy.apply_move(random.choice(stateCopy.get_moves()))
 
         while node != None:
-            node.Update(stateCopy)
-    return
+            me = state.get_whos_turn()
+            node.Update(outcome(stateCopy.get_score()))
+            node = node.parentNode
+
+        timeNow = time.time()
+        if timeNow > timeDead:
+            break
+
+    sampleRate = float(iterations)/(timeNow - timeStart)
+    #print sampleRate
+
+    return sorted(rootnode.childNodes, key = lambda c: outcome(stateCopy.get_score())+
+                                                       math.sqrt(2*math.log(c.parentNode.visits)/c.visits))[-1].move
 

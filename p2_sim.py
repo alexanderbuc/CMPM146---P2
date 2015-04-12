@@ -2,7 +2,7 @@ from p2_game import Game, State
 from collections import defaultdict
 
 import greedy_bot as red_bot
-import uniform_bot as blue_bot
+import uct_bot as blue_bot
 
 BOTS = {'red': red_bot, 'blue': blue_bot}
 
