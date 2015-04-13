@@ -97,7 +97,10 @@ def think(state, quip):
             node = node.AddChild(m, stateCopy)
 
         while stateCopy.get_moves() != []:
-            stateCopy.apply_move(random.choice(stateCopy.get_moves()))
+            for i in range(5):
+                if stateCopy.is_terminal():
+                    break
+                stateCopy.apply_move(random.choice(stateCopy.get_moves()))
 
         while node != None:
             me = state.get_whos_turn()
